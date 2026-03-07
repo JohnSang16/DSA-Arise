@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DSA Cyber-Dungeon</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --cyan: #00e5ff;
+      --green: #00ff88;
+      --red: #ff2244;
+      --bg: #05080f;
+      --surface: #0a0d1a;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); font-family: 'Share Tech Mono', monospace; }
+
+    /* Scanlines */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg, transparent, transparent 2px,
+        rgba(0,0,0,0.12) 2px, rgba(0,0,0,0.12) 4px
+      );
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* Grid background */
+    .grid-bg {
+      background-color: var(--bg);
+      background-image:
+        linear-gradient(rgba(0,229,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,0.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+
+    /* Glitch */
+    @keyframes glitch-1 {
+      0%,89%,100% { clip-path: inset(0 0 100% 0); transform: translate(0); }
+      90% { clip-path: inset(10% 0 70% 0); transform: translate(-3px, 0); }
+      92% { clip-path: inset(50% 0 30% 0); transform: translate(3px, 0); }
+      94% { clip-path: inset(80% 0 8% 0);  transform: translate(-2px, 0); }
+      96% { clip-path: inset(25% 0 60% 0); transform: translate(2px, 0); }
+    }
+    @keyframes glitch-2 {
+      0%,91%,100% { clip-path: inset(0 0 100% 0); transform: translate(0); }
+      92% { clip-path: inset(60% 0 20% 0); transform: translate(3px, 0); }
+      94% { clip-path: inset(20% 0 65% 0); transform: translate(-3px, 0); }
+      96% { clip-path: inset(85% 0 5% 0);  transform: translate(1px, 0); }
+    }
+
+    .glitch-wrap { position: relative; display: inline-block; }
+    .glitch-wrap::before {
+      content: attr(data-text);
+      position: absolute; inset: 0;
+      color: #ff2244;
+      animation: glitch-1 4s infinite;
+      opacity: 0.75;
+    }
+    .glitch-wrap::after {
+      content: attr(data-text);
+      position: absolute; inset: 0;
+      color: #00ff88;
+      animation: glitch-2 4s infinite 0.15s;
+      opacity: 0.75;
+    }
+
+    /* Neon buttons */
+    .btn {
+      font-family: 'Orbitron', monospace;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      border: 2px solid;
+      padding: 13px 40px;
+      cursor: pointer;
+      background: transparent;
+      font-size: 13px;
+      transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s ease, background 0.2s ease;
+    }
+    .btn:active { transform: scale(0.97) !important; }
+
+    .btn-green {
+      color: #00ff88; border-color: #00ff88;
+      box-shadow: 0 0 12px rgba(0,255,136,0.25), inset 0 0 8px rgba(0,255,136,0.04);
+    }
+    .btn-green:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0 24px rgba(0,255,136,0.6), 0 0 48px rgba(0,255,136,0.2), inset 0 0 16px rgba(0,255,136,0.12);
+      background: rgba(0,255,136,0.07);
+    }
+
+    .btn-cyan {
+      color: #00e5ff; border-color: #00e5ff;
+      box-shadow: 0 0 12px rgba(0,229,255,0.25), inset 0 0 8px rgba(0,229,255,0.04);
+    }
+    .btn-cyan:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0 24px rgba(0,229,255,0.6), 0 0 48px rgba(0,229,255,0.2), inset 0 0 16px rgba(0,229,255,0.12);
+      background: rgba(0,229,255,0.07);
+    }
+
+    .btn-disabled {
+      color: #2a2a3a; border-color: #1e1e2e;
+      cursor: not-allowed; opacity: 0.45;
+      box-shadow: none;
+    }
+
+    /* Zone cards */
+    .zone-card {
+      background: var(--surface);
+      border: 1px solid;
+      border-radius: 3px;
+      padding: 18px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s ease;
+      min-height: 188px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .zone-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.025) 0%, transparent 55%);
+      pointer-events: none;
+    }
+    .zone-card:not(.locked):hover { transform: translateY(-5px) scale(1.02); }
+    .zone-card.locked { cursor: not-allowed; filter: saturate(0.2) brightness(0.5); }
+
+    /* Corrupted zone jitter */
+    @keyframes corrupt {
+      0%,92%,100% { transform: none; }
+      93% { transform: translateX(3px); clip-path: inset(15% 0 55% 0); }
+      94% { transform: translateX(-2px); clip-path: none; }
+      95% { transform: none; clip-path: inset(70% 0 10% 0); }
+      96% { transform: none; clip-path: none; }
+    }
+    .corrupted { animation: corrupt 6s infinite; }
+
+    /* Spin */
+    @keyframes spin-slow { to { transform: rotate(360deg); } }
+    .spin-slow { animation: spin-slow 25s linear infinite; }
+
+    /* Flicker */
+    @keyframes flicker {
+      0%,96%,100% { opacity: 1; }
+      97% { opacity: 0.5; }
+      98% { opacity: 1; }
+      99% { opacity: 0.3; }
+    }
+    .flicker { animation: flicker 5s infinite; }
+
+    /* Float */
+    @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    .float { animation: float 4s ease-in-out infinite; }
+
+    /* Corner brackets */
+    .corner {
+      position: absolute; width: 14px; height: 14px;
+      border-color: #00e5ff; border-style: solid; border-width: 0;
+      opacity: 0.5;
+    }
+    .corner-tl { top: 7px; left: 7px; border-top-width: 2px; border-left-width: 2px; }
+    .corner-tr { top: 7px; right: 7px; border-top-width: 2px; border-right-width: 2px; }
+    .corner-bl { bottom: 7px; left: 7px; border-bottom-width: 2px; border-left-width: 2px; }
+    .corner-br { bottom: 7px; right: 7px; border-bottom-width: 2px; border-right-width: 2px; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #05080f; }
+    ::-webkit-scrollbar-thumb { background: rgba(0,229,255,0.25); border-radius: 3px; }
+
+    /* Particle canvas */
+    #particle-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+// ─── Data ────────────────────────────────────────────────────────────────────
+
+const ZONES = [
+  { id: 1, name: "Array Plains",      topic: "Arrays",        sub: "Memory indexing & traversal",         diff: 1, color: "#00ff88", glyph: "[ ]", levels: 8  },
+  { id: 2, name: "Stack Spire",       topic: "Stacks",        sub: "LIFO push/pop mechanics",             diff: 2, color: "#00e5ff", glyph: "⊤",   levels: 6  },
+  { id: 3, name: "Queue Keep",        topic: "Queues",        sub: "FIFO enqueue & dequeue",              diff: 3, color: "#0099ff", glyph: "⇒",   levels: 6  },
+  { id: 4, name: "Linked Labyrinth",  topic: "Linked Lists",  sub: "Pointer chains & traversal",         diff: 4, color: "#ddcc00", glyph: "→",   levels: 8  },
+  { id: 5, name: "Hash Highlands",    topic: "Hash Tables",   sub: "Hashing & collision resolution",     diff: 5, color: "#ff9900", glyph: "#",   levels: 7  },
+  { id: 6, name: "Binary Bastion",    topic: "Binary Trees",  sub: "BST insert, search & rotate",        diff: 6, color: "#ff5500", glyph: "⋀",   levels: 9  },
+  { id: 7, name: "Heap Haven",        topic: "Heaps",         sub: "Priority queues & heapify",          diff: 7, color: "#ff2200", glyph: "△",   levels: 6  },
+  { id: 8, name: "Graph Graveyard",   topic: "Graphs",        sub: "BFS, DFS & corrupted pathfinding",   diff: 8, color: "#ff0033", glyph: "⬡",   levels: 10 },
+];
+
+const DIFF_LABELS = ["", "INITIATE", "INITIATE", "APPRENTICE", "APPRENTICE", "ADEPT", "ADEPT", "CORRUPTED", "CORRUPTED"];
+
+// ─── Particle Canvas ─────────────────────────────────────────────────────────
+
+function ParticleCanvas() {
+  const ref = useRef(null);
+  useEffect(() => {
+    const c = ref.current;
+    const ctx = c.getContext('2d');
+    const resize = () => { c.width = innerWidth; c.height = innerHeight; };
+    resize();
+    window.addEventListener('resize', resize);
+
+    const pts = Array.from({ length: 55 }, () => ({
+      x: Math.random() * innerWidth,
+      y: Math.random() * innerHeight,
+      vx: (Math.random() - 0.5) * 0.35,
+      vy: (Math.random() - 0.5) * 0.35,
+      r: Math.random() * 1.4 + 0.4,
+      a: Math.random() * 0.45 + 0.1,
+    }));
+
+    let raf;
+    const draw = () => {
+      ctx.clearRect(0, 0, c.width, c.height);
+      pts.forEach(p => {
+        p.x = (p.x + p.vx + c.width) % c.width;
+        p.y = (p.y + p.vy + c.height) % c.height;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(0,229,255,${p.a})`;
+        ctx.fill();
+      });
+      pts.forEach((a, i) => pts.slice(i + 1).forEach(b => {
+        const d = Math.hypot(a.x - b.x, a.y - b.y);
+        if (d < 110) {
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+          ctx.strokeStyle = `rgba(0,229,255,${(1 - d / 110) * 0.07})`;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      }));
+      raf = requestAnimationFrame(draw);
+    };
+    draw();
+    return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', resize); };
+  }, []);
+  return <canvas ref={ref} id="particle-canvas" />;
+}
+
+// ─── Start Screen ─────────────────────────────────────────────────────────────
+
+function StartScreen({ hasSave, onNewGame, onContinue }) {
+  return (
+    <div className="grid-bg" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
+      <ParticleCanvas />
+
+      {/* Top bar */}
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, padding: '10px 24px', borderBottom: '1px solid rgba(0,229,255,0.12)', display: 'flex', justifyContent: 'space-between', fontSize: 10, color: 'rgba(0,229,255,0.4)', letterSpacing: '0.12em', zIndex: 10 }}>
+        <span className="flicker">SYS://DSA-CYBER-DUNGEON/v2.0</span>
+        <span>RUNTIME: <span style={{ color: '#00ff88' }}>ACTIVE</span></span>
+        <span className="flicker">NODE: 0xA3F72C</span>
+      </div>
+
+      {/* Main content */}
+      <div style={{ position: 'relative', zIndex: 10, textAlign: 'center', padding: '0 24px' }}>
+
+        {/* Eyebrow */}
+        <div style={{ color: 'rgba(0,229,255,0.55)', fontSize: 11, letterSpacing: '0.5em', marginBottom: 28, textTransform: 'uppercase' }}>
+          ◈ &nbsp; Digital Realm Interface &nbsp; ◈
+        </div>
+
+        {/* Title */}
+        <div style={{ marginBottom: 10 }}>
+          <span
+            className="glitch-wrap"
+            data-text="CYBER DUNGEON"
+            style={{
+              fontFamily: "'Orbitron', monospace",
+              fontWeight: 900,
+              fontSize: 'clamp(40px, 9vw, 88px)',
+              color: '#00e5ff',
+              lineHeight: 1,
+              letterSpacing: '-0.02em',
+              textShadow: '0 0 20px rgba(0,229,255,0.9), 0 0 60px rgba(0,229,255,0.45), 0 0 120px rgba(0,229,255,0.2)',
+              display: 'inline-block',
+            }}
+          >
+            CYBER DUNGEON
+          </span>
+        </div>
+
+        {/* Sub-title */}
+        <div style={{ fontFamily: "'Orbitron', monospace", fontWeight: 400, fontSize: 'clamp(12px, 2.5vw, 20px)', color: '#00ff88', letterSpacing: '0.35em', textShadow: '0 0 14px rgba(0,255,136,0.7)', marginBottom: 14 }}>
+          DSA MASTERY PROTOCOL
+        </div>
+
+        <div style={{ color: 'rgba(0,229,255,0.3)', fontSize: 11, letterSpacing: '0.2em', marginBottom: 60 }}>
+          FRAGMENT THE LOOP LORD — RESTORE THE DATA REALMS
+        </div>
+
+        {/* Buttons */}
+        <div style={{ display: 'flex', gap: 20, justifyContent: 'center', flexWrap: 'wrap' }}>
+          <button className="btn btn-green" onClick={onNewGame}>▶ &nbsp; New Game</button>
+          <button
+            className={`btn ${hasSave ? 'btn-cyan' : 'btn-disabled'}`}
+            onClick={hasSave ? onContinue : undefined}
+            disabled={!hasSave}
+          >
+            ⟳ &nbsp; Continue
+          </button>
+        </div>
+
+        <div style={{ marginTop: 14, fontSize: 10, letterSpacing: '0.15em' }}>
+          {hasSave
+            ? <span style={{ color: 'rgba(0,229,255,0.45)' }}>SAVE FILE DETECTED — RESUME AVAILABLE</span>
+            : <span style={{ color: 'rgba(255,34,68,0.35)' }}>NO SAVE FILE FOUND</span>
+          }
+        </div>
+      </div>
+
+      {/* Decorative rotating rings */}
+      <div className="spin-slow" style={{ position: 'absolute', bottom: '8%', right: '4%', width: 130, height: 130, border: '1px solid rgba(0,229,255,0.07)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 52, color: 'rgba(0,229,255,0.06)', pointerEvents: 'none' }}>⬡</div>
+      <div className="spin-slow" style={{ position: 'absolute', top: '14%', left: '4%', width: 90, height: 90, border: '1px solid rgba(0,255,136,0.06)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, color: 'rgba(0,255,136,0.05)', pointerEvents: 'none', animationDirection: 'reverse' }}>[ ]</div>
+
+      {/* Bottom bar */}
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '10px 24px', borderTop: '1px solid rgba(0,229,255,0.1)', textAlign: 'center', fontSize: 10, color: 'rgba(0,229,255,0.2)', letterSpacing: '0.2em', zIndex: 10 }}>
+        ◈ PRESS NEW GAME TO INITIALIZE TRAINING SEQUENCE ◈
+      </div>
+    </div>
+  );
+}
+
+// ─── Zone Card ───────────────────────────────────────────────────────────────
+
+function ZoneCard({ zone, unlocked, current, onClick }) {
+  const [hov, setHov] = useState(false);
+  const c = zone.color;
+  const corrupted = zone.diff >= 7;
+
+  return (
+    <div
+      className={`zone-card${unlocked ? '' : ' locked'}${corrupted && unlocked ? ' corrupted' : ''}`}
+      style={{
+        borderColor: unlocked ? c + '44' : '#151525',
+        boxShadow: unlocked && hov
+          ? `0 0 22px ${c}44, 0 0 44px ${c}1a, inset 0 0 18px ${c}0d`
+          : unlocked
+          ? `0 0 8px ${c}1a`
+          : 'none',
+      }}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      onClick={unlocked ? onClick : undefined}
+    >
+      {unlocked && <>
+        <div className="corner corner-tl" />
+        <div className="corner corner-br" />
+      </>}
+
+      {current && (
+        <div style={{ position: 'absolute', top: -9, left: '50%', transform: 'translateX(-50%)', background: c, color: '#000', fontSize: 8, fontFamily: "'Orbitron',monospace", fontWeight: 700, padding: '2px 12px', letterSpacing: '0.15em' }}>
+          CURRENT
+        </div>
+      )}
+
+      {/* Top row */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
+        <div style={{ fontSize: 26, color: unlocked ? c : '#252535', textShadow: unlocked ? `0 0 14px ${c}88` : 'none', fontFamily: "'Share Tech Mono',monospace", lineHeight: 1 }}>
+          {zone.glyph}
+        </div>
+        <div style={{ fontSize: 9, color: unlocked ? c + 'aa' : '#252535', background: unlocked ? c + '12' : 'transparent', border: `1px solid ${unlocked ? c + '30' : '#252535'}`, padding: '2px 8px', borderRadius: 2, fontFamily: "'Share Tech Mono',monospace", letterSpacing: '0.1em' }}>
+          ZONE {String(zone.id).padStart(2, '0')}
+        </div>
+      </div>
+
+      {/* Name + sub */}
+      <div style={{ flex: 1 }}>
+        <div style={{ fontFamily: "'Orbitron',monospace", fontWeight: 700, fontSize: 13, color: unlocked ? c : '#252535', textShadow: unlocked ? `0 0 8px ${c}66` : 'none', letterSpacing: '0.04em', marginBottom: 5 }}>
+          {zone.name}
+        </div>
+        <div style={{ fontSize: 10, color: unlocked ? 'rgba(255,255,255,0.4)' : '#1a1a2a', lineHeight: 1.5 }}>
+          {zone.sub}
+        </div>
+      </div>
+
+      {/* Bottom row */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 }}>
+        <div style={{ fontSize: 9, color: unlocked ? c + 'cc' : '#252535', background: unlocked ? c + '15' : 'transparent', border: `1px solid ${unlocked ? c + '40' : 'transparent'}`, padding: '2px 8px', fontFamily: "'Share Tech Mono',monospace", letterSpacing: '0.1em' }}>
+          {DIFF_LABELS[zone.diff]}
+        </div>
+        <div style={{ fontSize: 9, color: unlocked ? 'rgba(255,255,255,0.3)' : '#1a1a2a', fontFamily: "'Share Tech Mono',monospace" }}>
+          {zone.levels} LVL
+        </div>
+      </div>
+
+      {/* Lock icon */}
+      {!unlocked && (
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+          <svg width="22" height="26" viewBox="0 0 22 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="11" width="18" height="14" rx="2" stroke="#2a2a3a" strokeWidth="1.5"/>
+            <path d="M6 11V7a5 5 0 0110 0v4" stroke="#2a2a3a" strokeWidth="1.5" strokeLinecap="round"/>
+            <circle cx="11" cy="18" r="2" fill="#2a2a3a"/>
+          </svg>
+          <span style={{ fontSize: 8, color: '#2a2a3a', fontFamily: "'Orbitron',monospace", letterSpacing: '0.15em' }}>LOCKED</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Zone Modal ───────────────────────────────────────────────────────────────
+
+function ZoneModal({ zone, onEnter, onClose }) {
+  const c = zone.color;
+  return (
+    <div
+      onClick={e => e.target === e.currentTarget && onClose()}
+      style={{ position: 'fixed', inset: 0, background: 'rgba(5,8,15,0.88)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: 20 }}
+    >
+      <div style={{ background: '#0a0d1a', border: `1px solid ${c}44`, boxShadow: `0 0 40px ${c}22, 0 0 80px ${c}0d`, padding: '40px 36px', maxWidth: 460, width: '100%', borderRadius: 4, position: 'relative' }}>
+        <div className="corner corner-tl" />
+        <div className="corner corner-tr" />
+        <div className="corner corner-bl" />
+        <div className="corner corner-br" />
+
+        <div style={{ textAlign: 'center', marginBottom: 28 }}>
+          <div className="float" style={{ fontSize: 54, color: c, textShadow: `0 0 22px ${c}`, fontFamily: "'Share Tech Mono',monospace", lineHeight: 1, marginBottom: 16 }}>{zone.glyph}</div>
+          <div style={{ fontFamily: "'Orbitron',monospace", fontWeight: 900, fontSize: 20, color: c, textShadow: `0 0 12px ${c}88`, letterSpacing: '0.1em', marginBottom: 5 }}>{zone.name}</div>
+          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.18em' }}>{zone.topic.toUpperCase()} · {zone.levels} CHALLENGES</div>
+        </div>
+
+        <div style={{ background: c + '08', border: `1px solid ${c}20`, padding: '14px 18px', marginBottom: 24, fontSize: 12, color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
+          {zone.sub}. Master the fundamentals of {zone.topic.toLowerCase()} to unlock advanced data manipulation protocols and progress through the realm.
+        </div>
+
+        <div style={{ display: 'flex', gap: 14 }}>
+          <button className="btn btn-cyan" onClick={onClose} style={{ flex: 1, fontSize: 11 }}>← Back</button>
+          <button
+            onClick={() => onEnter(zone)}
+            style={{ flex: 2, fontFamily: "'Orbitron',monospace", fontWeight: 700, fontSize: 12, letterSpacing: '0.15em', border: `2px solid ${c}`, color: c, background: c + '1a', boxShadow: `0 0 16px ${c}44`, padding: '13px 20px', cursor: 'pointer', textTransform: 'uppercase', transition: 'transform 0.15s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s' }}
+            onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)'; e.currentTarget.style.boxShadow = `0 0 28px ${c}77, 0 0 56px ${c}33`; }}
+            onMouseOut={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = `0 0 16px ${c}44`; }}
+          >
+            ▶ Enter Zone
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── World Map ────────────────────────────────────────────────────────────────
+
+function WorldMap({ saveData, onZoneSelect, onBack }) {
+  const unlockedZone = saveData ? saveData.zone : 1;
+
+  return (
+    <div className="grid-bg" style={{ minHeight: '100vh' }}>
+
+      {/* Sticky header */}
+      <div style={{ position: 'sticky', top: 0, zIndex: 20, background: 'rgba(5,8,15,0.92)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(0,229,255,0.18)', padding: '13px 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <button
+          onClick={onBack}
+          style={{ background: 'transparent', border: '1px solid rgba(0,229,255,0.25)', color: 'rgba(0,229,255,0.6)', fontFamily: "'Share Tech Mono',monospace", fontSize: 11, padding: '6px 16px', cursor: 'pointer', letterSpacing: '0.1em', transition: 'all 0.15s' }}
+          onMouseOver={e => { e.currentTarget.style.color = '#00e5ff'; e.currentTarget.style.borderColor = 'rgba(0,229,255,0.6)'; e.currentTarget.style.boxShadow = '0 0 10px rgba(0,229,255,0.3)'; }}
+          onMouseOut={e => { e.currentTarget.style.color = 'rgba(0,229,255,0.6)'; e.currentTarget.style.borderColor = 'rgba(0,229,255,0.25)'; e.currentTarget.style.boxShadow = 'none'; }}
+        >
+          ← MAIN MENU
+        </button>
+
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontFamily: "'Orbitron',monospace", fontWeight: 700, fontSize: 17, color: '#00e5ff', letterSpacing: '0.2em', textShadow: '0 0 12px rgba(0,229,255,0.6)' }}>DATA REALM MAP</div>
+          <div style={{ fontSize: 9, color: 'rgba(0,229,255,0.35)', letterSpacing: '0.2em', marginTop: 2 }}>SELECT TRAINING ZONE</div>
+        </div>
+
+        <div style={{ textAlign: 'right' }}>
+          {saveData ? (
+            <>
+              <div style={{ fontSize: 9, color: 'rgba(0,255,136,0.6)', letterSpacing: '0.12em' }}>CYBER-KNIGHT</div>
+              <div style={{ fontFamily: "'Orbitron',monospace", fontSize: 12, color: '#00ff88' }}>Z{saveData.zone} · LVL {saveData.level}</div>
+            </>
+          ) : (
+            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>NEW RECRUIT</div>
+          )}
+        </div>
+      </div>
+
+      {/* Content */}
+      <div style={{ padding: '36px 32px', maxWidth: 1080, margin: '0 auto' }}>
+
+        {/* Legend */}
+        <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', marginBottom: 28, fontSize: 10, letterSpacing: '0.12em' }}>
+          <span style={{ color: 'rgba(0,255,136,0.7)' }}>● INITIATE</span>
+          <span style={{ color: 'rgba(221,204,0,0.7)' }}>● APPRENTICE</span>
+          <span style={{ color: 'rgba(255,85,0,0.7)' }}>● ADEPT</span>
+          <span style={{ color: 'rgba(255,0,51,0.7)' }}>● CORRUPTED</span>
+          <span style={{ marginLeft: 'auto', color: 'rgba(255,255,255,0.15)' }}>LOCKED ZONES REQUIRE PRIOR CLEARANCE</span>
+        </div>
+
+        {/* Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(215px, 1fr))', gap: 18 }}>
+          {ZONES.map(z => (
+            <ZoneCard
+              key={z.id}
+              zone={z}
+              unlocked={z.id <= unlockedZone}
+              current={saveData && z.id === unlockedZone}
+              onClick={() => onZoneSelect(z)}
+            />
+          ))}
+        </div>
+
+        {/* Footer */}
+        <div style={{ marginTop: 48, textAlign: 'center', fontSize: 10, color: 'rgba(0,229,255,0.15)', letterSpacing: '0.22em', borderTop: '1px solid rgba(0,229,255,0.07)', paddingTop: 22 }}>
+          ◈ THE LOOP LORD WATCHES — TRAIN. COMPILE. CONQUER. ◈
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── App ──────────────────────────────────────────────────────────────────────
+
+function App() {
+  const [screen, setScreen] = useState('start');
+  const [saveData, setSaveData] = useState(null);
+  const [modal, setModal] = useState(null);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('dsa-dungeon-save');
+      if (raw) setSaveData(JSON.parse(raw));
+    } catch {}
+  }, []);
+
+  const startNew = () => {
+    const save = { zone: 1, level: 1, started: Date.now() };
+    localStorage.setItem('dsa-dungeon-save', JSON.stringify(save));
+    setSaveData(save);
+    setScreen('map');
+  };
+
+  const continueGame = () => setScreen('map');
+
+  const enterZone = (zone) => {
+    // Placeholder until Level 1 is built
+    alert(`Entering ${zone.name}… Level system coming soon!`);
+    setModal(null);
+  };
+
+  return (
+    <div>
+      {screen === 'start' && (
+        <StartScreen hasSave={!!saveData} onNewGame={startNew} onContinue={continueGame} />
+      )}
+      {screen === 'map' && (
+        <WorldMap saveData={saveData} onZoneSelect={setModal} onBack={() => setScreen('start')} />
+      )}
+      {modal && (
+        <ZoneModal zone={modal} onEnter={enterZone} onClose={() => setModal(null)} />
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
