@@ -43,7 +43,7 @@ As of March 2026, the project is moving into Stage 2: The Wizard’s Tower. Upco
   <li><strong>AVL Balancing Mechanics: </strong> Visual rotations to restore "Harmony to the Forest.
 </li
 <li><strong>The Null Singularity:</strong> A final encounter in the secret Hash Table stage requiring perfect hashing to win.
-</li
+</li>
   
 </ul>
 
