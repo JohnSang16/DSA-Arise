@@ -1,0 +1,352 @@
+/* ── Keyframes ── */
+
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.15; transform: scale(0.8); }
+  50%       { opacity: 1;    transform: scale(1.6); }
+}
+
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+@keyframes glitch {
+  0%, 83%, 100% {
+    text-shadow: 4px 4px 0 #6600aa, -2px -2px 0 #220044, 0 0 30px rgba(179,102,255,0.8);
+    transform: none;
+    clip-path: none;
+  }
+  85% {
+    transform: translateX(-6px);
+    text-shadow: 6px 0 #ff44cc, -6px 0 #00ffcc;
+    clip-path: inset(10% 0 75% 0);
+  }
+  87% {
+    transform: translateX(6px) skewX(-4deg);
+    text-shadow: -6px 0 #ff44cc, 6px 0 #00ffcc;
+    clip-path: inset(60% 0 10% 0);
+  }
+  89% {
+    transform: translateX(-3px);
+    text-shadow: 3px 0 #ff44cc, 0 0 30px rgba(179,102,255,0.8);
+    clip-path: inset(35% 0 45% 0);
+  }
+  91% {
+    transform: translateX(3px);
+    clip-path: inset(20% 0 65% 0);
+  }
+  93% {
+    transform: none;
+    clip-path: none;
+    text-shadow: 4px 4px 0 #6600aa, -2px -2px 0 #220044, 0 0 30px rgba(179,102,255,0.8);
+  }
+}
+
+@keyframes rainFall {
+  0%   { transform: translateY(-120px) translateX(0);   opacity: 0; }
+  8%   { opacity: 0.55; }
+  92%  { opacity: 0.55; }
+  100% { transform: translateY(105vh)  translateX(35px); opacity: 0; }
+}
+
+@keyframes floatUp {
+  0%   { transform: translateY(0)    scale(1);   opacity: 0; }
+  10%  { opacity: 0.85; }
+  90%  { opacity: 0.45; }
+  100% { transform: translateY(-75vh) scale(0.2); opacity: 0; }
+}
+
+@keyframes cloudDrift {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* ── Root ── */
+
+.root {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  z-index: 100;
+}
+
+/* ── Background layers ── */
+
+.sky {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, #000008 0%, #1a0088 55%, #020818 100%);
+  z-index: 0;
+}
+
+/* Layers use background-repeat:repeat-x so CSS tiles them natively (no seam).
+   backgroundPositionX is driven by rAF in JS at the exact computed tile width. */
+
+.layerFar,
+.layerMid,
+.layerClose,
+.layerFg {
+  position: absolute;
+  inset: 0;
+  background-repeat: repeat-x;
+  background-size: auto 100%;
+  background-position: 0 bottom;
+}
+
+.layerFar {
+  filter: hue-rotate(155deg) saturate(5) brightness(0.5) contrast(1.3);
+  mix-blend-mode: screen;
+  z-index: 2;
+}
+
+.layerMid {
+  filter: hue-rotate(200deg) saturate(6) brightness(0.55) contrast(1.4);
+  mix-blend-mode: screen;
+  z-index: 3;
+}
+
+.layerClose {
+  filter: hue-rotate(180deg) saturate(4) brightness(1.6) contrast(1.2);
+  mix-blend-mode: screen;
+  z-index: 4;
+}
+
+.layerFg {
+  filter: hue-rotate(175deg) saturate(3) brightness(0.7);
+  z-index: 5;
+}
+
+/* ── Stars ── */
+
+.star {
+  position: absolute;
+  border-radius: 50%;
+  background: #ffffff;
+  animation: twinkle ease-in-out infinite;
+  z-index: 1;
+}
+
+/* ── Moon ── */
+
+.moon {
+  position: absolute;
+  top: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ffffff 0%, #aaccff 40%, #4488cc 70%, #002255 100%);
+  box-shadow: 0 0 20px 8px rgba(100,160,255,0.4), 0 0 60px 20px rgba(60,100,200,0.2);
+  z-index: 1;
+}
+
+/* ── Cloud wisps ── */
+
+.clouds {
+  position: absolute;
+  top: 12%;
+  left: 0;
+  width: 200%;
+  height: 140px;
+  background:
+    radial-gradient(ellipse 320px 65px at 18% 50%,  rgba(80,0,140,0.28)  0%, transparent 70%),
+    radial-gradient(ellipse 420px 85px at 58% 42%,  rgba(60,0,120,0.22)  0%, transparent 70%),
+    radial-gradient(ellipse 260px 55px at 84% 60%,  rgba(100,0,160,0.18) 0%, transparent 70%),
+    radial-gradient(ellipse 180px 45px at 38% 70%,  rgba(70,0,130,0.20)  0%, transparent 70%);
+  animation: cloudDrift 22s linear infinite;
+  pointer-events: none;
+  z-index: 6;
+}
+
+/* ── Rain ── */
+
+.raindrop {
+  position: absolute;
+  top: -120px;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent 0%, #00eeff 45%, transparent 100%);
+  animation: rainFall linear infinite;
+  opacity: 0.5;
+  z-index: 7;
+}
+
+/* ── Ground glow ── */
+
+.groundGlow {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #00ff88;
+  box-shadow: 0 0 20px 6px rgba(0,255,136,0.6), 0 0 60px 16px rgba(0,255,136,0.2);
+  z-index: 8;
+}
+
+/* ── CRT scanlines ── */
+
+.scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 3px,
+    rgba(0,0,0,0.13) 3px,
+    rgba(0,0,0,0.13) 4px
+  );
+  pointer-events: none;
+  z-index: 9;
+}
+
+/* ── Vignette ── */
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 48%, rgba(0,0,0,0.78) 100%);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* ── Floating particles ── */
+
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  animation: floatUp ease-in infinite;
+  z-index: 11;
+}
+
+/* ── HUD corners ── */
+
+.corner {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  border-color: #00ff88;
+  border-style: solid;
+  z-index: 22;
+}
+.cornerTL { top: 14px;    left: 14px;    border-width: 3px 0 0 3px; }
+.cornerTR { top: 14px;    right: 14px;   border-width: 3px 3px 0 0; }
+.cornerBL { bottom: 14px; left: 14px;    border-width: 0 0 3px 3px; }
+.cornerBR { bottom: 14px; right: 14px;   border-width: 0 3px 3px 0; }
+
+/* ── HP bar ── */
+
+.hpContainer {
+  position: absolute;
+  top: 22px;
+  left: 58px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 21;
+}
+
+.hpLabel {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  color: #ff44cc;
+  text-shadow: 0 0 8px rgba(255,68,204,0.7);
+}
+
+.hpTrack {
+  width: 72px;
+  height: 10px;
+  border: 2px solid #ff44cc;
+  background: rgba(255,68,204,0.08);
+  box-shadow: 0 0 6px rgba(255,68,204,0.3);
+}
+
+.hpFill {
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(to right, #cc2299, #ff44cc, #ff88dd);
+  box-shadow: 0 0 8px rgba(255,68,204,0.6);
+}
+
+.hpText {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 7px;
+  color: #ff44cc;
+}
+
+/* ── Stage info ── */
+
+.stageInfo {
+  position: absolute;
+  top: 22px;
+  right: 58px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  color: #00ffcc;
+  text-shadow: 0 0 8px rgba(0,255,204,0.6);
+  z-index: 21;
+}
+
+.stageSub {
+  font-size: 7px;
+  color: #4499aa;
+}
+
+/* ── Title UI ── */
+
+.titleContainer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.systemTag {
+  font-family: 'VT323', monospace;
+  font-size: 22px;
+  color: #00ff88;
+  letter-spacing: 3px;
+  text-shadow: 0 0 10px rgba(0,255,136,0.6);
+  margin: 0 0 20px 0;
+}
+
+.mainTitle {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 46px;
+  color: #b366ff;
+  text-shadow: 4px 4px 0 #6600aa, -2px -2px 0 #220044, 0 0 30px rgba(179,102,255,0.8);
+  animation: glitch 7s linear infinite;
+  margin: 0;
+  line-height: 1.2;
+  font-weight: 400;
+  letter-spacing: normal;
+}
+
+.subtitle {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 20px;
+  color: #00ffcc;
+  text-shadow: 0 0 16px rgba(0,255,204,0.7);
+  margin: 18px 0 36px 80px;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.pressEnter {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 11px;
+  color: #00ff88;
+  text-shadow: 0 0 10px rgba(0,255,136,0.6);
+  animation: blink 1s step-end infinite;
+  margin: 0;
+  letter-spacing: 1px;
+}
