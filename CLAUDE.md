@@ -12,8 +12,30 @@ A pixel sci-fi educational RPG that teaches Data Structures and Algorithms to be
 - **Styling:** CSS Modules
 - **Fonts:** Press Start 2P, VT323 (Google Fonts)
 
+## Color Palette (Cyberpunk 2077-inspired — use these EVERYWHERE)
+```
+--color-bg-deep:      #0D0B1A   /* darkest background */
+--color-bg-dark:      #1E1C6E   /* deep navy — page backgrounds */
+--color-bg-mid:       #2A2E4A   /* dark slate — cards, panels */
+--color-accent-pink:  #D63AAF   /* hot magenta — primary accent, buttons, glows */
+--color-accent-purple:#6B22CC   /* neon purple — secondary accent, borders */
+--color-accent-cyan:  #00E5FF   /* electric cyan — highlights, HP bar, active states */
+--color-accent-rose:  #8B1A6B   /* deep rose — hover states, shadows */
+--color-soft-lavender:#F2DDFF   /* soft lavender — body text on dark bg */
+--color-steel-blue:   #8B9FD4   /* steel blue — muted text, disabled states */
+```
+
+**Color role assignments:**
+- Backgrounds: #0D0B1A (deepest) and #1E1C6E (navy) and #2A2E4A (panels)
+- Primary CTA buttons / glows: #D63AAF (hot magenta)
+- Borders / secondary elements: #6B22CC (neon purple)
+- Highlights / HP bar / active: #00E5FF (electric cyan)
+- All body text: #F2DDFF (soft lavender)
+- Muted / disabled text: #8B9FD4 (steel blue)
+- Neon glow shadows always use the element's color at 40-60% opacity
+
 ## Visual Style
-Retro pixel sci-fi / cyberpunk. Deep indigo/navy backgrounds. Neon accents: purple (#b366ff), cyan (#00ffcc), green (#00ff88), pink (#ff44cc). CRT scanlines overlay on every screen. Press Start 2P for titles, VT323 for body/narrative text.
+Retro pixel sci-fi / Cyberpunk 2077 palette. Deep navy/indigo backgrounds. Hot magenta and electric cyan as the dominant neon accents. CRT scanlines overlay on every screen. Press Start 2P for all titles and UI labels, VT323 for narrative/body text.
 
 ## Project Structure
 ```
@@ -55,7 +77,7 @@ src/
 - layer_mid.png — scrolls 18s, filter hue-rotate(200deg) saturate(6) brightness(0.55), mix-blend-mode screen
 - layer_close.png — scrolls 11s, filter hue-rotate(180deg) saturate(4) brightness(1.6), mix-blend-mode screen
 - layer_fg.png — scrolls 7s, filter hue-rotate(175deg) saturate(3) brightness(0.7)
-Sky background: linear-gradient #000008 → #1a0088 → #020818
+Sky background: linear-gradient #0D0B1A → #1E1C6E → #0D0B1A
 
 ## Supabase Schema
 Table: user_progress
@@ -75,11 +97,11 @@ Table: user_progress
 ## Stage Themes
 | Stage | Topic | Color | Enemy |
 |-------|-------|-------|-------|
-| 1 | Arrays | Cyan #00ffcc | DataSlime |
-| 2 | Stacks/Queues | Purple #aa44ff | NullSentinel |
-| 3 | Linked Lists | Teal #00ccaa | HydraNode |
-| 4 | Trees/BST | Green #44ff88 | CorruptTree |
-| 5 | Graphs | Orange #ff8844 | DarkLord |
+| 1 | Arrays | #00E5FF cyan | DataSlime |
+| 2 | Stacks/Queues | #D63AAF magenta | NullSentinel |
+| 3 | Linked Lists | #6B22CC purple | HydraNode |
+| 4 | Trees/BST | #8B9FD4 steel blue | CorruptTree |
+| 5 | Graphs | #F2DDFF lavender | DarkLord |
 
 ## Rules — Read Before Every Task
 1. Never use TypeScript — plain JavaScript only
@@ -89,13 +111,14 @@ Table: user_progress
 5. Test that the app still runs after every change
 6. Keep all Supabase keys in .env — never hardcode them
 7. One task at a time — do not add unrequested features
+8. Always use the color palette defined above — never use old colors like #00ff88, #b366ff, #00ffcc, #ff44cc
 
 ## Current Status
 <!-- Update this section as you build -->
-- [ ] Prompt 1 — Project scaffold
-- [ ] Prompt 2 — Supabase connection
-- [ ] Prompt 3 — Title screen
-- [ ] Prompt 4 — Auth screen
+- [x] Prompt 1 — Project scaffold
+- [x] Prompt 2 — Supabase connection
+- [x] Prompt 3 — Title screen
+- [x] Prompt 4 — Auth screen
 - [ ] Prompt 5 — Hub screen
 - [ ] Prompt 6 — Game screen layout
 - [ ] Prompt 7 — Level data & validation
