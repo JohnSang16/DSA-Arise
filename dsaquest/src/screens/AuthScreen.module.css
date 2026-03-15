@@ -1,0 +1,208 @@
+/* ── Keyframes ── */
+
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Root ── */
+
+.root {
+  position: fixed;
+  inset: 0;
+  background: #0D0B1A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  z-index: 100;
+}
+
+/* ── CRT scanlines ── */
+
+.scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 3px,
+    rgba(0,0,0,0.13) 3px,
+    rgba(0,0,0,0.13) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── Vignette ── */
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 48%, rgba(0,0,0,0.82) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── Card ── */
+
+.card {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 16px;
+  background: rgba(42, 46, 74, 0.92);
+  border: 2px solid #6B22CC;
+  box-shadow:
+    0 0 20px rgba(107, 34, 204, 0.35),
+    0 0 60px rgba(107, 34, 204, 0.12),
+    inset 0 0 30px rgba(0, 0, 0, 0.5);
+  padding: 36px 32px 40px;
+  animation: cardIn 0.4s ease both;
+}
+
+/* ── Logo ── */
+
+.logo {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 13px;
+  color: #D63AAF;
+  text-shadow: 0 0 16px rgba(214, 58, 175, 0.7), 2px 2px 0 #6B22CC;
+  text-align: center;
+  margin: 0 0 28px;
+  letter-spacing: 1px;
+}
+
+/* ── Tabs ── */
+
+.tabs {
+  display: flex;
+  border-bottom: 2px solid rgba(107, 34, 204, 0.3);
+  margin-bottom: 28px;
+}
+
+.tab {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 8px 0;
+  font-family: 'VT323', monospace;
+  font-size: 22px;
+  color: #8B9FD4;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: color 0.15s, text-shadow 0.15s;
+  position: relative;
+}
+
+.tab:hover {
+  color: #6B22CC;
+}
+
+.tabActive {
+  color: #00E5FF;
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.6);
+}
+
+.tabActive::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0; right: 0;
+  height: 2px;
+  background: #00E5FF;
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.7);
+}
+
+/* ── Form ── */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 7px;
+  color: #8B9FD4;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.input {
+  background: rgba(13, 11, 26, 0.9);
+  border: 2px solid rgba(107, 34, 204, 0.4);
+  color: #F2DDFF;
+  font-family: 'VT323', monospace;
+  font-size: 20px;
+  padding: 10px 12px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  letter-spacing: 1px;
+}
+
+.input::placeholder {
+  color: rgba(139, 159, 212, 0.4);
+}
+
+.input:focus {
+  border-color: #00E5FF;
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.25);
+}
+
+/* ── Error ── */
+
+.error {
+  font-family: 'VT323', monospace;
+  font-size: 17px;
+  color: #ff4466;
+  text-shadow: 0 0 8px rgba(255, 68, 102, 0.5);
+  text-align: center;
+  min-height: 22px;
+  letter-spacing: 0.5px;
+}
+
+/* ── Submit button ── */
+
+.btn {
+  margin-top: 6px;
+  padding: 14px 0;
+  background: linear-gradient(135deg, rgba(107, 34, 204, 0.6), rgba(214, 58, 175, 0.4));
+  border: 2px solid #D63AAF;
+  color: #F2DDFF;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  box-shadow: 0 0 14px rgba(214, 58, 175, 0.4);
+  transition: border-color 0.15s, box-shadow 0.15s, color 0.15s;
+}
+
+.btn:hover:not(:disabled) {
+  border-color: #00E5FF;
+  color: #00E5FF;
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.45);
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btnLoading::after {
+  content: '...';
+  animation: blink 0.8s step-end infinite;
+}

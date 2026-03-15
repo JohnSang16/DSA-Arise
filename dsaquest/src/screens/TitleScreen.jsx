@@ -6,7 +6,7 @@ import imgMid   from '../assets/scenes/stage1/layer_mid.png'
 import imgClose from '../assets/scenes/stage1/layer_close.png'
 import imgFg    from '../assets/scenes/stage1/layer_fg.png'
 
-const PARTICLE_COLORS = ['#00ff88', '#aa44ff', '#00ccff']
+const PARTICLE_COLORS = ['#D63AAF', '#6B22CC', '#00E5FF']
 
 function rand(min, max) {
   return min + Math.random() * (max - min)
