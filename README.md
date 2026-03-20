@@ -1,9 +1,9 @@
-## ⚔️ DSA Quest
+## ⚔️ DSA Arise
 
 <strong>An immersive RPG experience that turns Data Structures and Algorithms (DSA) into a legendary adventure.</strong>
 
 ## 📖 Overview
-<strong>DSA Quest</strong> is a progression-based learning platform where coding challenges are reimagined as epic battles. You play as Arthur, starting as a simple Initiate in the Null Plains. By solving DSA problems, you gain health, upgrade your armor, and eventually ascend to the rank of Paladin. The curriculum is specifically mapped to the <strong>GSU-DSA</strong> standard to provide a practical yet addictive way to master computer science fundamentals.
+<strong>DSA Arise</strong> is a progression-based learning platform where coding challenges are reimagined as epic battles. You play as Arthur, starting as a simple Initiate in the Null Plains. By solving DSA problems, you gain health, upgrade your armor, and eventually ascend to the rank of Paladin. The curriculum is specifically mapped to the <strong>GSU-DSA</strong> standard to provide a practical yet addictive way to master computer science fundamentals.
 
 
 ## 📦 Technologies
