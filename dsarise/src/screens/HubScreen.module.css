@@ -1,0 +1,204 @@
+/* ── Keyframes ── */
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.7; }
+  50%       { opacity: 1; }
+}
+
+/* ── Root ── */
+
+.root {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(to bottom, #000000 0%, #0a0a2e 50%, #000000 100%);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Scanlines ── */
+
+.scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 3px,
+    rgba(0, 0, 0, 0.12) 3px,
+    rgba(0, 0, 0, 0.12) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── Vignette ── */
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 45%, rgba(0, 0, 0, 0.8) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── Loading ── */
+
+.loadingText {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  color: #00ccff;
+  text-shadow: 0 0 12px rgba(0, 204, 255, 0.7);
+  animation: pulse 1.2s ease-in-out infinite;
+  z-index: 10;
+}
+
+/* ── Main ── */
+
+.main {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px 48px;
+  gap: 12px;
+}
+
+/* ── Map title ── */
+
+.mapTitle {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 20px;
+  color: #1a3aff;
+  text-shadow: 0 0 20px rgba(26, 58, 255, 0.7), 3px 3px 0 #5533ff;
+  margin: 0;
+  letter-spacing: 2px;
+}
+
+.mapSub {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  font-size: 18px;
+  color: #8888cc;
+  letter-spacing: 3px;
+  margin: 0 0 28px;
+}
+
+/* ── Map path ── */
+
+.mapPath {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
+  gap: 0;
+}
+
+/* ── Each node row (connector + nodeCol wrapper) ── */
+
+.nodeRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+/* ── Dashed connector line ── */
+
+.connector {
+  width: 72px;
+  height: 0;
+  border-top: 2px dashed rgba(26, 58, 255, 0.3);
+  flex-shrink: 0;
+  margin-bottom: 42px;
+}
+
+/* ── Node column ── */
+
+.nodeCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 96px;
+}
+
+/* ── "▼ HERE" current indicator ── */
+
+.hereLabel {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 6px;
+  letter-spacing: 1px;
+}
+
+/* ── Stage circle button ── */
+
+.node {
+  width: 82px;
+  height: 82px;
+  border-radius: 50%;
+  border: 3px solid;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 0;
+  background: transparent;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  flex-shrink: 0;
+}
+
+.nodeLocked {
+  opacity: 0.35;
+}
+
+.nodeIcon {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.doneTag {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 9px;
+  letter-spacing: 1px;
+  opacity: 0.85;
+}
+
+/* ── Labels below each node ── */
+
+.nodeName {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 6px;
+  text-align: center;
+  line-height: 1.5;
+  letter-spacing: 0.3px;
+}
+
+.stageNum {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 2px;
+}
+
+/* ── Bottom hint ── */
+
+.hint {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 400;
+  font-size: 15px;
+  color: rgba(136, 136, 204, 0.4);
+  letter-spacing: 2px;
+  margin: 16px 0 0;
+}

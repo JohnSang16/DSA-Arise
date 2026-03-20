@@ -1,0 +1,213 @@
+/* ── Keyframes ── */
+
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Root ── */
+
+.root {
+  position: fixed;
+  inset: 0;
+  background: #02020f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  z-index: 100;
+}
+
+/* ── CRT scanlines ── */
+
+.scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 3px,
+    rgba(0,0,0,0.13) 3px,
+    rgba(0,0,0,0.13) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── Vignette ── */
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 48%, rgba(0,0,0,0.82) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── Card (System Window) ── */
+
+.card {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 16px;
+  background: rgba(0, 4, 40, 0.97);
+  border: 2px solid #1a3aff;
+  box-shadow:
+    0 0 60px rgba(26, 58, 255, 0.8),
+    0 0 120px rgba(26, 58, 255, 0.3),
+    inset 0 0 30px rgba(0, 0, 0, 0.5);
+  padding: 36px 32px 40px;
+  animation: cardIn 0.4s ease both;
+}
+
+/* ── Logo ── */
+
+.logo {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 13px;
+  color: #1a3aff;
+  text-shadow: 0 0 16px rgba(26, 58, 255, 0.7), 2px 2px 0 #5533ff;
+  text-align: center;
+  margin: 0 0 28px;
+  letter-spacing: 1px;
+}
+
+/* ── Tabs ── */
+
+.tabs {
+  display: flex;
+  border-bottom: 2px solid rgba(26, 58, 255, 0.3);
+  margin-bottom: 28px;
+}
+
+.tab {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 8px 0;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  color: #8888cc;
+  letter-spacing: 3px;
+  cursor: pointer;
+  transition: color 0.15s, text-shadow 0.15s;
+  position: relative;
+}
+
+.tab:hover {
+  color: #1a3aff;
+}
+
+.tabActive {
+  color: #00ccff;
+  text-shadow: 0 0 10px rgba(0, 204, 255, 0.6);
+}
+
+.tabActive::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0; right: 0;
+  height: 2px;
+  background: #00ccff;
+  box-shadow: 0 0 8px rgba(0, 204, 255, 0.7);
+}
+
+/* ── Form ── */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  color: #8888cc;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.input {
+  background: rgba(0, 4, 40, 0.8);
+  border: 2px solid rgba(26, 58, 255, 0.35);
+  color: #ccddff;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  font-size: 18px;
+  padding: 10px 12px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  letter-spacing: 1px;
+}
+
+.input::placeholder {
+  color: rgba(136, 136, 204, 0.4);
+}
+
+.input:focus {
+  border-color: #00ccff;
+  box-shadow: 0 0 10px rgba(0, 204, 255, 0.25);
+}
+
+/* ── Error ── */
+
+.error {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  color: #ff3333;
+  text-shadow: 0 0 8px rgba(255, 51, 51, 0.5);
+  text-align: center;
+  min-height: 22px;
+  letter-spacing: 0.5px;
+}
+
+/* ── Submit button ── */
+
+.btn {
+  margin-top: 6px;
+  padding: 14px 0;
+  background: linear-gradient(135deg, rgba(26, 58, 255, 0.6), rgba(85, 51, 255, 0.4));
+  border: 2px solid #1a3aff;
+  color: #ccddff;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 3px;
+  cursor: pointer;
+  box-shadow: 0 0 14px rgba(26, 58, 255, 0.5);
+  transition: border-color 0.15s, box-shadow 0.15s, color 0.15s;
+}
+
+.btn:hover:not(:disabled) {
+  border-color: #00ccff;
+  color: #00ccff;
+  box-shadow: 0 0 20px rgba(0, 204, 255, 0.45);
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btnLoading::after {
+  content: '...';
+  animation: blink 0.8s step-end infinite;
+}
