@@ -149,7 +149,7 @@ export default function HubScreen() {
                           : 'none',
                       cursor: unlocked ? 'pointer' : 'not-allowed',
                     }}
-                    onClick={() => unlocked && navigate(`/game?stage=${stage.num}`)}
+                    onClick={() => unlocked && (stage.num === 1 ? navigate('/intro') : navigate(`/game?stage=${stage.num}`))}
                     animate={current ? {
                       scale: [1, 1.06, 1],
                     } : {}}

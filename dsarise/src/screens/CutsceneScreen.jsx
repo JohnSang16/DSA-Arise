@@ -395,13 +395,11 @@ const letterVariants = {
 }
 
 function Scene6() {
-  const [showArise, setShowArise] = useState(false)
-  const [showRing, setShowRing]   = useState(false)
+  const [showRing, setShowRing] = useState(false)
 
   useEffect(() => {
-    const t1 = setTimeout(() => setShowArise(true), 1100)
-    const t2 = setTimeout(() => setShowRing(true),  200)
-    return () => { clearTimeout(t1); clearTimeout(t2) }
+    const t = setTimeout(() => setShowRing(true), 200)
+    return () => clearTimeout(t)
   }, [])
 
   return (
@@ -420,20 +418,15 @@ function Scene6() {
         animate="visible"
       >
         {TITLE_LETTERS.map((ch, i) => (
-          <motion.span key={i} className={styles.titleLetter} variants={letterVariants}>
+          <motion.span
+            key={i}
+            className={i >= 4 ? styles.titleLetterArise : styles.titleLetter}
+            variants={letterVariants}
+          >
             {ch}
           </motion.span>
         ))}
       </motion.div>
-
-      <motion.p
-        className={styles.ariseText}
-        initial={{ opacity: 0, letterSpacing: '4px' }}
-        animate={{ opacity: showArise ? 1 : 0, letterSpacing: showArise ? '16px' : '4px' }}
-        transition={{ duration: 0.9, ease: 'easeOut' }}
-      >
-        ARISE.
-      </motion.p>
     </div>
   )
 }
@@ -550,9 +543,8 @@ function Scene5({ onAccept }) {
     S5_REWARDS.forEach((_, i) => {
       setTimeout(() => setVisibleRewards(v => Math.max(v, i + 1)), 700 + i * 260)
     })
-    const t    = setTimeout(() => setShowAccept(true), 2600)
-    const auto = setTimeout(onAccept, 8000)
-    return () => { clearTimeout(t); clearTimeout(auto) }
+    const t = setTimeout(() => setShowAccept(true), 2600)
+    return () => clearTimeout(t)
   }, [])
 
   return (
@@ -667,7 +659,7 @@ export default function CutsceneScreen() {
 
   return (
     <div className={styles.root}>
-      <button className={styles.skipBtn} onClick={() => navigate('/auth')}>
+      <button className={styles.skipBtn} onClick={() => navigate('/game?stage=1')}>
         SKIP
         <span className={styles.skipArrow}>›</span>
       </button>
@@ -689,7 +681,7 @@ export default function CutsceneScreen() {
           {scene === 9 && <Scene9 />}
           {scene === 4 && <Scene4 />}
           {scene === 6 && <Scene6 />}
-          {scene === 5 && <Scene5 onAccept={() => navigate('/auth')} />}
+          {scene === 5 && <Scene5 onAccept={() => navigate('/game?stage=1')} />}
         </motion.div>
       </AnimatePresence>
     </div>

@@ -13,10 +13,10 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<TitleScreen />} />
+        <Route path="/intro" element={<CutsceneScreen />} />
         <Route path="/auth" element={<AuthScreen />} />
         <Route path="/hub" element={<HubScreen />} />
         <Route path="/game" element={<GameScreen />} />
-        <Route path="/intro" element={<CutsceneScreen />} />
       </Routes>
     </Router>
   );

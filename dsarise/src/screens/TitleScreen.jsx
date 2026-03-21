@@ -1,12 +1,10 @@
-import { useEffect, useRef, useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import styles from './TitleScreen.module.css'
-import imgFar   from '../assets/scenes/stage1/layer_far.png'
-import imgMid   from '../assets/scenes/stage1/layer_mid.png'
-import imgClose from '../assets/scenes/stage1/layer_close.png'
-import imgFg    from '../assets/scenes/stage1/layer_fg.png'
+import upgradedKai from '../assets/sprites/UpgradedKai.png'
 
-const PARTICLE_COLORS = ['#1a3aff', '#5533ff', '#00ccff']
+const PARTICLE_COLORS = ['#5533ff', '#1a3aff', '#00ccff']
 
 function rand(min, max) {
   return min + Math.random() * (max - min)
@@ -15,174 +13,118 @@ function rand(min, max) {
 export default function TitleScreen() {
   const navigate = useNavigate()
 
-  const farRef   = useRef()
-  const midRef   = useRef()
-  const closeRef = useRef()
-  const fgRef    = useRef()
-
-  // Seamless parallax: background-repeat:repeat-x tiles natively;
-  // rAF advances position by exactly one natural tile width per loop.
-  useEffect(() => {
-    const vh = window.innerHeight
-    const LAYERS = [
-      { ref: farRef,   src: imgFar,   duration: 28 },
-      { ref: midRef,   src: imgMid,   duration: 18 },
-      { ref: closeRef, src: imgClose, duration: 11 },
-      { ref: fgRef,    src: imgFg,    duration: 7  },
-    ]
-
-    const tileW = [0, 0, 0, 0]
-    const pos   = [0, 0, 0, 0]
-    let rafId = null
-    let lastT = null
-
-    // Set background-image and resolve natural tile width for each layer
-    LAYERS.forEach(({ ref, src }, i) => {
-      if (ref.current) ref.current.style.backgroundImage = `url(${src})`
-      const img = new Image()
-      img.onload = () => {
-        tileW[i] = img.naturalWidth * (vh / img.naturalHeight)
-        if (!rafId) rafId = requestAnimationFrame(tick)
-      }
-      img.src = src
-    })
-
-    function tick(t) {
-      if (lastT === null) lastT = t
-      const dt = (t - lastT) / 1000
-      lastT = t
-      LAYERS.forEach(({ ref, duration }, i) => {
-        if (!tileW[i] || !ref.current) return
-        pos[i] = (pos[i] + tileW[i] * (dt / duration)) % tileW[i]
-        ref.current.style.backgroundPositionX = `-${pos[i]}px`
-      })
-      rafId = requestAnimationFrame(tick)
-    }
-
-    return () => { if (rafId) cancelAnimationFrame(rafId) }
-  }, [])
-
-  // Generated once on mount — stable via useMemo
-  const stars = useMemo(() =>
-    Array.from({ length: 80 }, (_, i) => ({
-      id: i,
-      top:   `${rand(0, 100)}%`,
-      left:  `${rand(0, 100)}%`,
-      size:  `${rand(1, 3)}px`,
-      delay: `${rand(0, 5)}s`,
-      dur:   `${rand(1.5, 4.5)}s`,
-    })), [])
-
-  const rain = useMemo(() =>
-    Array.from({ length: 70 }, (_, i) => ({
-      id: i,
-      left:  `${rand(0, 100)}%`,
-      delay: `${rand(0, 2)}s`,
-      dur:   `${rand(0.55, 1.35)}s`,
-      h:     `${rand(55, 135)}px`,
-    })), [])
-
   const particles = useMemo(() =>
-    Array.from({ length: 18 }, (_, i) => ({
+    Array.from({ length: 30 }, (_, i) => ({
       id:    i,
-      left:  `${rand(5, 95)}%`,
-      bot:   `${rand(2, 30)}%`,
+      left:  `${rand(0, 100)}%`,
       color: PARTICLE_COLORS[i % 3],
-      size:  `${rand(3, 8)}px`,
+      size:  rand(2, 5),
       delay: `${rand(0, 6)}s`,
-      dur:   `${rand(4, 10)}s`,
+      dur:   `${rand(6, 14)}s`,
     })), [])
 
   useEffect(() => {
-    const onKey = (e) => { if (e.key === 'Enter') navigate('/intro') }
+    const onKey = (e) => { if (e.key === 'Enter') navigate('/auth') }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [navigate])
 
   return (
-    <div className={styles.root}>
+    <div className={styles.root} onClick={() => navigate('/auth')} style={{ cursor: 'pointer' }}>
 
-      {/* ── Sky + parallax layers ── */}
-      <div className={styles.sky} />
-      <div ref={farRef}   className={styles.layerFar}   />
-      <div ref={midRef}   className={styles.layerMid}   />
-      <div ref={closeRef} className={styles.layerClose} />
-      <div ref={fgRef}    className={styles.layerFg}    />
-
-      {/* ── Stars ── */}
-      {stars.map(s => (
-        <div
-          key={s.id}
-          className={styles.star}
-          style={{
-            top: s.top, left: s.left,
-            width: s.size, height: s.size,
-            animationDelay: s.delay,
-            animationDuration: s.dur,
-          }}
-        />
-      ))}
-
-      {/* ── Moon ── */}
-      <div className={styles.moon} />
-
-      {/* ── Cloud wisps ── */}
-      <div className={styles.clouds} />
-
-      {/* ── Rain ── */}
-      {rain.map(r => (
-        <div
-          key={r.id}
-          className={styles.raindrop}
-          style={{
-            left: r.left,
-            height: r.h,
-            animationDelay: r.delay,
-            animationDuration: r.dur,
-          }}
-        />
-      ))}
-
-      {/* ── Ground glow ── */}
-      <div className={styles.groundGlow} />
-
-      {/* ── CRT scanlines ── */}
-      <div className={styles.scanlines} />
-
-      {/* ── Vignette ── */}
       <div className={styles.vignette} />
 
-      {/* ── Floating particles ── */}
+      {/* Mana particles */}
       {particles.map(p => (
         <div
           key={p.id}
           className={styles.particle}
           style={{
-            left: p.left,
-            bottom: p.bot,
-            width: p.size,
-            height: p.size,
-            background: p.color,
-            boxShadow: `0 0 6px 2px ${p.color}`,
-            animationDelay: p.delay,
+            left:              p.left,
+            width:             `${p.size}px`,
+            height:            `${p.size}px`,
+            background:        p.color,
+            boxShadow:         `0 0 6px 2px ${p.color}`,
+            animationDelay:    p.delay,
             animationDuration: p.dur,
           }}
         />
       ))}
 
-      {/* ── Corner brackets ── */}
-      <div className={`${styles.corner} ${styles.cornerTL}`} />
-      <div className={`${styles.corner} ${styles.cornerTR}`} />
-      <div className={`${styles.corner} ${styles.cornerBL}`} />
-      <div className={`${styles.corner} ${styles.cornerBR}`} />
+      {/* Main layout — Kai left, title right */}
+      <div className={styles.layout}>
 
-      {/* ── Title UI ── */}
-      <div className={styles.titleContainer}>
-        <p className={styles.systemTag}>[ CODEX SYSTEM v1.0 ]</p>
-        <h1 className={styles.mainTitle}>DSA ARISE</h1>
-        <h2 className={styles.subtitle}>CODEX</h2>
-        <p className={styles.pressEnter}>— press enter —</p>
+        {/* Kai silhouette */}
+        <motion.div
+          className={styles.kaiWrap}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8, duration: 0.6 }}
+        >
+          <div className={styles.kaiAura} />
+          <motion.div
+            className={styles.kaiFloat}
+            animate={{ y: [0, -6, 0] }}
+            transition={{ duration: 3, ease: 'easeInOut', repeat: Infinity }}
+          >
+            <img src={upgradedKai} alt="Kai" className={styles.kaiImg} />
+          </motion.div>
+        </motion.div>
+
+        {/* Title block */}
+        <div className={styles.titleBlock}>
+
+          <motion.p
+            className={styles.systemTag}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5, duration: 0.6 }}
+          >
+            [ SYSTEM INITIALIZED ]
+          </motion.p>
+
+          <motion.h1
+            className={styles.titleDSA}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8, duration: 0.5 }}
+          >
+            DSA
+          </motion.h1>
+
+          <motion.h1
+            className={styles.titleARISE}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.95, duration: 0.5 }}
+          >
+            ARISE
+          </motion.h1>
+
+          <motion.div
+            className={styles.rankBadge}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.4, duration: 0.5 }}
+          >
+            [ ENTER THE SYSTEM ]
+          </motion.div>
+
+        </div>
       </div>
+
+      {/* Bottom prompt */}
+      <motion.p
+        className={styles.pressEnter}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.8, duration: 0.5 }}
+      >
+        — PRESS ENTER TO ARISE —
+      </motion.p>
+
+      {/* Bottom left tag */}
+      <p className={styles.codexTag}>CODEX v1.0 | GSU-DSA</p>
 
     </div>
   )
